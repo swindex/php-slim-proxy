@@ -60,7 +60,7 @@ $responseHeaders = $targetResponseHeaders;
 
 //Modify response if response config value is callable
 if (is_callable($CONFIG['response'])) {
-    $processedResponse = call_user_func($CONFIG['response'], $retHeaders, $targetResponseBody, $targetResponseStatus);
+    $processedResponse = call_user_func($CONFIG['response'], $targetResponseHeaders, $targetResponseBody, $targetResponseStatus);
     $responseHeaders = $processedResponse[0];
     $responseBody = $processedResponse[1];
     $responseStatus = $processedResponse[2];
