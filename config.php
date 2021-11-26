@@ -24,6 +24,8 @@ $CONFIG = [
     */
     "request"=>function($method, $request, $headers){
         //here you can modify request to the target
+        $request['token_auth'] = "6c7a2acbec376932034b9b292c442c6f";
+		$request['cip'] = $_SERVER['REMOTE_ADDR'];
         return [$method, $request, $headers];
     },
     /** Modify response to the client */

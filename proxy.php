@@ -5,7 +5,7 @@ error_reporting(E_ERROR);
 require_once "config.php";
 
 $method = $_SERVER['REQUEST_METHOD'];
-$req_url = $_SERVER['SCRIPT_URI'];
+$req_url = $_SERVER['SCRIPT_URI'] ?? $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
 $request = $_REQUEST;
 
 $headers = getRequestHeaders();
@@ -27,7 +27,7 @@ $targetUrl = preg_replace($CONFIG['redirect_from'], $CONFIG['redirect_to'], $req
 
 //echo $url;
 //validate target URL
-if (!preg_match("^(http|https):\/\/(?:.*?)", $targetUrl)) {
+if (!preg_match("/^(http|https):\/\//", $targetUrl)) {
 	response(400, "url is required");
 }
 
