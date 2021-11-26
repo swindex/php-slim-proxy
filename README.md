@@ -14,9 +14,9 @@ Uses apache .htaccess config to route all requests to the proxy.php script
 ## How it looks
 
 ### Request:
- ``Client -> [https://mywebsite-A.com (proxy)] -> [https://mywebsite-b.com]``
+ ``Client`` -> ``[https://mywebsite-A.com (proxy)]`` -> ``[https://mywebsite-b.com]``
 ### Response:
- ``Client <- [https://othersite-B.com (proxy)] <- [https://mywebsite-b.com]``
+ ``Client`` <- ``[https://othersite-B.com (proxy)]`` <- ``[https://mywebsite-b.com]``
 
 
 This way the ``Client`` is never aware of ``https://othersite-B.com`` and thinks its always talking only to ``https://mywebsite-A.com``
