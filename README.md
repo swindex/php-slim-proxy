@@ -35,7 +35,7 @@ Just drop the following files into path your client will be calling:
 
 * ``.htaccess`` - Apache routing config
 * ``config.php`` - Proxy config
-* ``proxy.php`` - Proxy script
+* ``index.php`` - Proxy script
 
 Modify config.php to your requirements
 
