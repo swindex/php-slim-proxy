@@ -66,9 +66,9 @@ $CONFIG = [
     /**
      *  Modify request to the target 
     */
-    "request"=>function($method, $request, $headers){
+    "request"=>function($method, $get, $post, $body, $headers){
         //here you can modify request to the target
-        return [$method, $request, $headers];
+        return [$method, $get, $post, $body, $headers];
     },
     /** Modify response to the client */
     "response"=>function ($headers, $body, $status){

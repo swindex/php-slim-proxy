@@ -5,9 +5,10 @@ error_reporting(E_ERROR);
 require_once "config.php";
 
 $method = $_SERVER['REQUEST_METHOD'];
-$req_url = $_SERVER['SCRIPT_URI'] ?? $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
-$request = $_REQUEST;
-
+$req_url = $_SERVER['SCRIPT_URI'] ?? ($_SERVER['REQUEST_SCHEME'] ?? "http" ) . '://' . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
+$get = $_GET;
+$post = $_POST;
+$body = file_get_contents('php://input');
 $headers = getRequestHeaders();
 
 
@@ -23,7 +24,7 @@ if ($CONFIG['cors_origin'] && $method == 'OPTIONS') {
 
 //file_put_contents("server_dump_request.log", print_r($headers,true), FILE_APPEND );
 
-$targetUrl = preg_replace($CONFIG['redirect_from'], $CONFIG['redirect_to'], $req_url);
+$targetUrl = strtok(preg_replace($CONFIG['redirect_from'], $CONFIG['redirect_to'], $req_url), "?");
 
 //echo $url;
 //validate target URL
@@ -32,21 +33,28 @@ if (!preg_match("/^(http|https):\/\//", $targetUrl)) {
 }
 
 $targetMethod = $method;
-$targetRequest = $request;
+$targetGet = $get;
+$targetPost = $post;
 $targetHeaders = $headers;
+$targetBody = $body;
+//unset($targetHeaders['Host']);
 
 //Modify request if request config value is callable
 if (is_callable($CONFIG['request'])) {
-    $processedRequest = call_user_func($CONFIG['request'], $targetMethod, $targetRequest, $targetHeaders);
+    $processedRequest = call_user_func($CONFIG['request'], $targetMethod, $targetGet, $targetPost, $targetBody, $targetHeaders);
     $targetMethod = $processedRequest[0];
-    $targetRequest = $processedRequest[1];
-    $targetHeaders = $processedRequest[2];
+    $targetGet = $processedRequest[1];
+    $targetPost = $processedRequest[2];
+	$targetBody = $processedRequest[3];
+    $targetHeaders = $processedRequest[4];
 }
 
 $targetResponseBody = httpRequest(
     $targetUrl,
     $targetMethod,
-    $targetRequest,
+    $targetGet,
+    $targetPost,
+    $targetBody,
     $targetHeaders,
     $targetResponseStatus, //out
     $targetResponseHeaders //out
@@ -66,12 +74,16 @@ if (is_callable($CONFIG['response'])) {
     $responseStatus = $processedResponse[2];
 }
 
+if ($responseStatus == 0) {
+    $responseStatus = 500;
+}
+
 //Set headers for response to the client
 foreach ($responseHeaders as $key=>$header){
 	header( $key . ': ' . $header);
 }
 //respond client
-response(200, $responseBody);
+response($responseStatus, $responseBody);
 exit;
 
 
@@ -104,32 +116,31 @@ function getRequestHeaders() {
  * @param int &$status -  response status code
  * @return string|null
  */
-function httpRequest($url, $method, $queryArray, $headers = null, &$status = null, &$returnHeaders = null) {
+function httpRequest($url, $method, $queryArray, $post=[], $body = null, $headers = null, &$status = null, &$returnHeaders = null) {
     $request = curl_init();
     // Set request options
     try {
         switch ($method) {
-            case 'POST':
-                curl_setopt_array($request, array(
-                    CURLOPT_URL => $url,
-                    CURLOPT_POST => true,
-                    CURLOPT_POSTFIELDS => http_build_query($queryArray),
-                ));
-                break;
             case "PUT":  
             case 'DELETE':
             case 'OPTIONS':
-                    curl_setopt_array($request, array(
-                    CURLOPT_URL => $url,
-                    CURLOPT_POST => true,
-                    CURLOPT_POSTFIELDS => http_build_query($queryArray),
-                    CURLOPT_CUSTOMREQUEST=>$method
-                ));
-                break;
+            case 'POST':
+                curl_setopt($request, CURLOPT_URL, $url . ($queryArray ? "?" . http_build_query($queryArray):""));
+                if (count($post) > 0){
+                    curl_setopt($request, CURLOPT_POST, 1);
+                    curl_setopt($request, CURLOPT_POSTFIELDS, $post);
+                    //these will be auto-calulated
+                    unset($headers['Content-Type']);
+                    unset($headers['Content-Length']);
+                }else{
+                    curl_setopt($request, CURLOPT_CUSTOMREQUEST, $method);
+                    curl_setopt($request, CURLOPT_POSTFIELDS, $body);
+                }
+            break;
             case 'GET':
             default:
                 curl_setopt_array($request, array(
-                    CURLOPT_URL => $url . "?" . http_build_query($queryArray),
+                    CURLOPT_URL => $url . ($queryArray ? "?" . http_build_query($queryArray):""),
                 ));
         }
 
