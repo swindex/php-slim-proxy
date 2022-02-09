@@ -4,7 +4,7 @@ A Dependency-free implementation of a PHP proxy.
 
 Only supports http(s) protocol
 
-Uses apache .htaccess config to route all requests to the proxy.php script
+Uses apache .htaccess config to route all requests to the index.php script
 
 
 ## Possible use cases:
