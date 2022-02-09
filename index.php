@@ -77,6 +77,8 @@ if (is_callable($CONFIG['response'])) {
 if ($responseStatus == 0) {
     $responseStatus = 500;
 }
+//remove transfer-encoding header that is set up automatically
+unset($responseHeaders["transfer-encoding"]);
 
 //Set headers for response to the client
 foreach ($responseHeaders as $key=>$header){

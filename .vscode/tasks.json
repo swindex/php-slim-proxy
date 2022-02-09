@@ -6,7 +6,7 @@
         {
             "label": "Start Index",
             "type": "shell",
-            "command": "php -S localhost:3001 index.php",
+            "command": "php -S localhost:3001 -t / index.php",
             "problemMatcher": []
         },
         {
