@@ -82,7 +82,13 @@ unset($responseHeaders["transfer-encoding"]);
 
 //Set headers for response to the client
 foreach ($responseHeaders as $key=>$header){
-	header( $key . ': ' . $header);
+    if (is_array($header)){
+        foreach ($header as $header_1){
+            header( $key . ': ' . $header_1, false);
+        }
+    } else {
+    	header( $key . ': ' . $header. false);
+    }
 }
 //respond client
 response($responseStatus, $responseBody);
@@ -157,7 +163,7 @@ function httpRequest($url, $method, $queryArray, $post=[], $body = null, $header
 
         curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($request, CURLOPT_HEADER, true);
-		
+       
 		//$returnHeaders = [];
 		curl_setopt($request, CURLOPT_HEADERFUNCTION,
 		  function($curl, $header) use (&$returnHeaders)
@@ -167,8 +173,17 @@ function httpRequest($url, $method, $queryArray, $post=[], $body = null, $header
 			if (count($header) < 2) // ignore invalid headers
 			  return $len;
 
-			$returnHeaders[strtolower(trim($header[0]))] = trim($header[1]);
-
+            $key = strtolower(trim($header[0]));
+            $value = trim($header[1]);
+            if (array_key_exists($key,$returnHeaders)) {
+                if (!is_array($returnHeaders[$key])) {
+                    $returnHeaders[$key] = [$returnHeaders[$key]];
+                }
+                
+                $returnHeaders[$key][] = $value;
+            } else {
+                $returnHeaders[$key] = $value;
+            }
 			return $len;
 		  }
 		);
@@ -181,6 +196,7 @@ function httpRequest($url, $method, $queryArray, $post=[], $body = null, $header
 
         $response = curl_exec($request);
         $status = curl_getinfo($request, CURLINFO_HTTP_CODE);
+        $error = curl_error($request);
 		//list($returnHeaders, $body) = explode("\r\n\r\n", $response, 2);
 		$header_size = curl_getinfo($request, CURLINFO_HEADER_SIZE);
 		//$returnHeaders = substr($response, 0, $header_size);
