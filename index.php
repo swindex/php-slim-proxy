@@ -164,7 +164,7 @@ function httpRequest($url, $method, $queryArray, $post=[], $body = null, $header
         curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($request, CURLOPT_HEADER, true);
        
-		//$returnHeaders = [];
+		$returnHeaders = [];
 		curl_setopt($request, CURLOPT_HEADERFUNCTION,
 		  function($curl, $header) use (&$returnHeaders)
 		  {
