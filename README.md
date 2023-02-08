@@ -4,11 +4,12 @@ A Dependency-free implementation of a PHP proxy.
 
 Only supports http(s) protocol
 
+Can modify requests body, parameters and headers on the fly.
+
 Uses apache .htaccess config to route all requests to the index.php script
 
-
 ## Possible use cases:
-* Set up a CORS proxy to other API services for your app to consume.
+* Set up a CORS proxy to other API services for your frontend app to consume.
 * Set up a proxy to completely redirect all http(s) data from current location to another url on the WEB
 
 ## How it looks
