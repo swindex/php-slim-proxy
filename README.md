@@ -15,16 +15,18 @@ Uses apache .htaccess config to route all requests to the index.php script
 ## How it looks
 
 ### Request:
- ``Client`` -> ``[https://mywebsite-A.com (proxy)]`` -> ``[https://mywebsite-b.com]``
+ ``Client`` -> ``[https://mywebsite-A.com (proxy)]`` -> ``[https://othersite-b.com]``
 ### Response:
- ``Client`` <- ``[https://othersite-B.com (proxy)]`` <- ``[https://mywebsite-b.com]``
+ ``Client`` <- ``[https://mywebsite-A.com](proxy)]`` <- ``[https://othersite-B.com]``
 
 
 This way the ``Client`` is never aware of ``https://othersite-B.com`` and thinks its always talking only to ``https://mywebsite-A.com``
 
 You can also modify request to the target and the response that is sent to the client
 
-For example you can add and remove headers, body or params to the request and response
+For example you can add and remove headers, body or params to the request and response.
+
+This can be useful if you want to access certain API without exposing your private keys on the client.
 
 ## Requirements:
 * PHP 7+ with CURL extension
